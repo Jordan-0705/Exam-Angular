@@ -18,13 +18,20 @@ export class BalanceStore {
 
   constructor(private walletApi: WalletApiService) {}
 
-  refresh(phone: string): void {
+  // src/app/services/balance-store.service.ts
+    refresh(phone: string): void {
+    console.log('🔄 BalanceStore.refresh() appelé pour:', phone);
     this.phoneSignal.set(phone);
     this.walletApi.getBalance(phone).subscribe({
-      next: (b) => this.balanceSignal.set(b),
-      error: () => console.error('Failed to refresh balance')
+        next: (b) => {
+        console.log('✅ Balance reçue:', b);
+        this.balanceSignal.set(b);
+        },
+        error: (err) => {
+        console.error('❌ Erreur lors du refresh du solde:', err);
+        }
     });
-  }
+    }
 
   update(newBalance: number): void {
     this.balanceSignal.set(newBalance);

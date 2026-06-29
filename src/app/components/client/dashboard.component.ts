@@ -1,13 +1,15 @@
 // src/app/components/client/dashboard.component.ts
 import { Component, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { BalanceStore } from '../../services/balance-store.service';
 import { WalletApiService } from '../../services/wallet-api.service';
+import { XofPipe } from '../../pipes/xof.pipe';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, CommonModule, XofPipe],
   template: `
     <div style="text-align: center; padding: 20px;">
       <h1>🏠 Tableau de Bord</h1>
@@ -15,7 +17,7 @@ import { WalletApiService } from '../../services/wallet-api.service';
       <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
                   color: white; padding: 30px; border-radius: 16px; margin: 20px 0;">
         <h3>Solde Disponible</h3>
-        <div style="font-size: 48px; font-weight: 700;">{{ balanceStore.formattedBalance() }}</div>
+        <div style="font-size: 48px; font-weight: 700;">{{ balanceStore.balance() | xof }}</div>
       </div>
       
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
@@ -44,9 +46,10 @@ import { WalletApiService } from '../../services/wallet-api.service';
 export class DashboardComponent implements OnInit {
   balanceStore = inject(BalanceStore);
   private walletApi = inject(WalletApiService);
+  currentPhone = '+221770000001';
 
   ngOnInit(): void {
-    // Utiliser un numéro de test
-    this.balanceStore.refresh('+221770000001');
+    console.log('🔄 Dashboard - Rafraîchissement du solde pour:', this.currentPhone);
+    this.balanceStore.refresh(this.currentPhone);
   }
 }

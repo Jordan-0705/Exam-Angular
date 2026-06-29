@@ -7,10 +7,14 @@ import { Transaction } from '../../models/transaction.model';
 @Component({
   selector: 'app-transactions',
   standalone: true,
-  imports: [CommonModule], // Ajout de CommonModule
+  imports: [CommonModule],
   template: `
     <div style="padding: 20px; max-width: 1200px; margin: 0 auto;">
       <h1>📊 Historique des Transactions</h1>
+      
+      <div style="margin-bottom: 15px; color: #6c757d; font-size: 14px;">
+        Client: {{ currentPhone }}
+      </div>
       
       <div style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden;">
         <table style="width: 100%; border-collapse: collapse;">
@@ -34,7 +38,7 @@ import { Transaction } from '../../models/transaction.model';
             </tr>
             <tr *ngIf="transactions.length === 0">
               <td colspan="4" style="padding: 20px; text-align: center; color: #6c757d;">
-                Aucune transaction trouvée
+                Aucune transaction trouvée pour {{ currentPhone }}
               </td>
             </tr>
           </tbody>
@@ -46,11 +50,18 @@ import { Transaction } from '../../models/transaction.model';
 export class TransactionsComponent implements OnInit {
   private walletApi = inject(WalletApiService);
   transactions: Transaction[] = [];
+  currentPhone = '+221770000001';
 
   ngOnInit(): void {
-    this.walletApi.getTransactionHistory('+221770000001').subscribe({
-      next: (data) => this.transactions = data,
-      error: () => console.error('Failed to load transactions')
+    console.log('🔄 Chargement des transactions pour:', this.currentPhone);
+    this.walletApi.getTransactionHistory(this.currentPhone).subscribe({
+      next: (data) => {
+        this.transactions = data;
+        console.log('✅ Transactions chargées:', data.length);
+      },
+      error: (err) => {
+        console.error('❌ Erreur lors du chargement des transactions:', err);
+      }
     });
   }
 }

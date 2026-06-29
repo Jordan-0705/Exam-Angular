@@ -1,5 +1,5 @@
 // src/app/components/shared/header.component.ts
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { BalanceStore } from '../../services/balance-store.service';
@@ -22,11 +22,19 @@ import { XofPipe } from '../../pipes/xof.pipe';
         </div>
         <div style="display: flex; align-items: center; gap: 15px;">
           <span style="font-weight: bold;">{{ balanceStore.balance() | xof }}</span>
+          <span style="font-size: 12px; opacity: 0.7;">{{ currentPhone }}</span>
         </div>
       </div>
     </nav>
   `
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit {
   balanceStore = inject(BalanceStore);
+  // Utiliser le numéro qui existe dans la base
+  currentPhone = '+221770000001';
+
+  ngOnInit(): void {
+    console.log('🔄 Rafraîchissement du solde pour:', this.currentPhone);
+    this.balanceStore.refresh(this.currentPhone);
+  }
 }

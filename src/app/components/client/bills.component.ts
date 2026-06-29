@@ -9,10 +9,14 @@ import { Facture } from '../../models/facture.model';
 @Component({
   selector: 'app-bills',
   standalone: true,
-  imports: [CommonModule], // Ajout de CommonModule
+  imports: [CommonModule],
   template: `
     <div style="padding: 20px; max-width: 1200px; margin: 0 auto;">
       <h1>📑 Paiement des Factures</h1>
+      
+      <div style="margin-bottom: 15px; color: #6c757d; font-size: 14px;">
+        Client: {{ currentPhone }} | Wallet: {{ walletCode }}
+      </div>
       
       <div style="margin-bottom: 20px;">
         <label style="font-weight: 500;">Filtrer par fournisseur :</label>
@@ -21,8 +25,6 @@ import { Facture } from '../../models/facture.model';
           <option value="">Tous</option>
           <option value="ISM">ISM</option>
           <option value="WOYAFAL">WOYAFAL</option>
-          <option value="SENELEC">SENELEC</option>
-          <option value="SONATEL">SONATEL</option>
         </select>
       </div>
       
@@ -58,7 +60,7 @@ import { Facture } from '../../models/facture.model';
             </tr>
             <tr *ngIf="bills.length === 0">
               <td colspan="5" style="padding: 20px; text-align: center; color: #6c757d;">
-                Aucune facture trouvée
+                Aucune facture trouvée pour {{ walletCode }}
               </td>
             </tr>
           </tbody>
@@ -72,24 +74,33 @@ export class BillsComponent implements OnInit {
   private walletApi = inject(WalletApiService);
   private balanceStore = inject(BalanceStore);
   bills: Facture[] = [];
-  walletCode = 'WLT-0000001';
+  walletCode = 'WLT-0000001';  // Utiliser le code du wallet 1
   currentPhone = '+221770000001';
 
   ngOnInit(): void {
+    console.log('🔄 Chargement des factures pour:', this.walletCode);
     this.loadBills();
   }
 
   loadBills(): void {
     this.billingApi.getCurrentBills(this.walletCode).subscribe({
-      next: (data) => this.bills = data,
-      error: () => console.error('Failed to load bills')
+      next: (data) => {
+        this.bills = data;
+        console.log('✅ Factures chargées:', data.length);
+      },
+      error: (err) => {
+        console.error('❌ Erreur lors du chargement des factures:', err);
+      }
     });
   }
 
   filterByProvider(provider: string): void {
     if (provider) {
       this.billingApi.getCurrentBillsByProvider(this.walletCode, provider).subscribe({
-        next: (data) => this.bills = data
+        next: (data) => {
+          this.bills = data;
+          console.log('✅ Factures filtrées:', data.length);
+        }
       });
     } else {
       this.loadBills();
